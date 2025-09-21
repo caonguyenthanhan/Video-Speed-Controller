@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Speed Controller</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Video Speed Controller</h2>
+            <div class="current-speed">
+                <span>Tốc độ hiện tại: </span>
+                <span id="currentSpeed">1.0x</span>
+            </div>
+        </div>
+        
+        <div class="speed-controls">
+            <div class="preset-speeds">
+                <h3>Tốc độ nhanh</h3>
+                <div class="speed-buttons">
+                    <button class="speed-btn" data-speed="0.25">0.25x</button>
+                    <button class="speed-btn" data-speed="0.5">0.5x</button>
+                    <button class="speed-btn" data-speed="0.75">0.75x</button>
+                    <button class="speed-btn active" data-speed="1">1.0x</button>
+                    <button class="speed-btn" data-speed="1.25">1.25x</button>
+                    <button class="speed-btn" data-speed="1.5">1.5x</button>
+                    <button class="speed-btn" data-speed="1.75">1.75x</button>
+                    <button class="speed-btn" data-speed="2">2.0x</button>
+                </div>
+            </div>
+            
+            <div class="fine-controls">
+                <h3>Điều chỉnh tinh</h3>
+                <div class="fine-buttons">
+                    <button id="decreaseSpeed" class="control-btn">-0.25</button>
+                    <button id="resetSpeed" class="control-btn reset">Reset</button>
+                    <button id="increaseSpeed" class="control-btn">+0.25</button>
+                </div>
+            </div>
+            
+            <div class="custom-speed">
+                <h3>Tốc độ tùy chỉnh</h3>
+                <div class="custom-input">
+                    <input type="number" id="customSpeedInput" min="0.1" max="16" step="0.1" value="1.0">
+                    <button id="applyCustomSpeed" class="control-btn">Áp dụng</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status">
+            <div id="statusMessage">Sẵn sàng điều khiển video</div>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
