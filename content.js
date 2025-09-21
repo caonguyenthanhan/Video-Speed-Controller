@@ -135,7 +135,25 @@ class VideoSpeedManager {
             }
 
             let handled = false;
+            
+            // Check for Ctrl+Shift+Arrow (Windows/Linux) or Cmd+Shift+Arrow (Mac)
+            const isCtrlOrCmd = e.ctrlKey || e.metaKey;
 
+            if (isCtrlOrCmd && e.shiftKey) {
+                switch (e.code) {
+                    case 'ArrowRight':
+                        this.adjustSpeed(0.25);
+                        handled = true;
+                        break;
+                        
+                    case 'ArrowLeft':
+                        this.adjustSpeed(-0.25);
+                        handled = true;
+                        break;
+                }
+            }
+
+            // Keep legacy shortcuts for backward compatibility
             switch (e.code) {
                 case 'Minus':
                 case 'NumpadSubtract':

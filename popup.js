@@ -1,76 +1,155 @@
 class VideoSpeedController {
     constructor() {
         this.currentSpeed = 1.0;
-        this.init();
     }
 
     init() {
         this.bindEvents();
         this.getCurrentSpeed();
+        this.setupShortcutsToggle();
     }
 
     bindEvents() {
-        // Preset speed buttons
-        const speedButtons = document.querySelectorAll('.speed-btn');
-        speedButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const speed = parseFloat(e.target.dataset.speed);
+        // Thanh trượt tốc độ
+        const speedSlider = document.getElementById('speedSlider');
+        if (speedSlider) {
+            speedSlider.addEventListener('input', (e) => {
+                let speed = parseFloat(e.target.value);
+                
+                // Snap to marks logic - dính vào các vạch khi gần
+                const snapMarks = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 1.75, 2, 3, 5];
+                const snapThreshold = 0.1; // Khoảng cách để snap
+                
+                for (const mark of snapMarks) {
+                    if (Math.abs(speed - mark) <= snapThreshold) {
+                        speed = mark;
+                        e.target.value = speed; // Cập nhật giá trị slider
+                        break;
+                    }
+                }
+                
                 this.setSpeed(speed);
+                this.updateSpeedDisplay(speed);
+            });
+
+            // Thêm visual feedback khi hover vào marks
+            speedSlider.addEventListener('change', (e) => {
+                const speed = parseFloat(e.target.value);
+                this.highlightNearestMark(speed);
+            });
+        }
+
+        // Nút tăng tốc độ
+        const increaseBtn = document.getElementById('increaseSpeed');
+        if (increaseBtn) {
+            increaseBtn.addEventListener('click', () => {
+                const currentSpeed = this.getCurrentSpeedValue();
+                const newSpeed = Math.min(5, currentSpeed + 0.25);
+                this.setSpeed(newSpeed);
+                this.updateSpeedDisplay(newSpeed);
+                this.updateSlider(newSpeed);
+                this.highlightNearestMark(newSpeed);
+            });
+        }
+
+        // Nút giảm tốc độ
+        const decreaseBtn = document.getElementById('decreaseSpeed');
+        if (decreaseBtn) {
+            decreaseBtn.addEventListener('click', () => {
+                const currentSpeed = this.getCurrentSpeedValue();
+                const newSpeed = Math.max(0.1, currentSpeed - 0.25);
+                this.setSpeed(newSpeed);
+                this.updateSpeedDisplay(newSpeed);
+                this.updateSlider(newSpeed);
+                this.highlightNearestMark(newSpeed);
+            });
+        }
+
+        // Nút Reset
+        const resetBtn = document.getElementById('resetSpeed');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                this.setSpeed(1.0);
+                this.updateSpeedDisplay(1.0);
+                this.updateSlider(1.0);
+                this.highlightNearestMark(1.0);
+            });
+        }
+
+        // Click vào marks để jump đến giá trị đó
+        const marks = document.querySelectorAll('.mark');
+        marks.forEach(mark => {
+            mark.addEventListener('click', () => {
+                const value = parseFloat(mark.dataset.value);
+                this.setSpeed(value);
+                this.updateSpeedDisplay(value);
+                this.updateSlider(value);
+                this.highlightNearestMark(value);
             });
         });
+    }
 
-        // Fine control buttons
-        document.getElementById('decreaseSpeed').addEventListener('click', () => {
-            this.adjustSpeed(-0.25);
-        });
-
-        document.getElementById('increaseSpeed').addEventListener('click', () => {
-            this.adjustSpeed(0.25);
-        });
-
-        document.getElementById('resetSpeed').addEventListener('click', () => {
-            this.setSpeed(1.0);
-        });
-
-        // Custom speed input
-        document.getElementById('applyCustomSpeed').addEventListener('click', () => {
-            this.applyCustomSpeed();
-        });
-
-        document.getElementById('customSpeedInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.applyCustomSpeed();
-            }
-        });
-
-        // Update custom input when speed changes
-        document.getElementById('customSpeedInput').addEventListener('input', (e) => {
-            const value = parseFloat(e.target.value);
-            if (value >= 0.1 && value <= 16) {
-                e.target.style.borderColor = '#4285f4';
-            } else {
-                e.target.style.borderColor = '#ea4335';
-            }
-        });
+    setupShortcutsToggle() {
+        const toggle = document.getElementById('shortcutsToggle');
+        const section = document.getElementById('shortcutsSection');
+        
+        if (toggle && section) {
+            // Mặc định ẩn shortcuts
+            section.classList.add('collapsed');
+            
+            toggle.addEventListener('click', () => {
+                section.classList.toggle('collapsed');
+            });
+        }
     }
 
     async getCurrentSpeed() {
         try {
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             
-            const response = await chrome.tabs.sendMessage(tab.id, {
-                action: 'getCurrentSpeed'
-            });
+            let response;
+            try {
+                response = await chrome.tabs.sendMessage(tab.id, {
+                    action: 'getCurrentSpeed'
+                });
+            } catch (connectionError) {
+                console.log('Content script not found, injecting...');
+                await this.injectContentScript(tab.id);
+                
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                try {
+                    response = await chrome.tabs.sendMessage(tab.id, {
+                        action: 'getCurrentSpeed'
+                    });
+                } catch (retryError) {
+                    this.showStatus('Không tìm thấy video trên trang này', 'warning');
+                    return;
+                }
+            }
 
             if (response && response.speed !== undefined) {
-                this.updateUI(response.speed);
+                this.updateSpeedDisplay(response.speed);
+                this.updateSlider(response.speed);
                 this.showStatus('Đã kết nối với video', 'success');
             } else {
-                this.showStatus('Không tìm thấy video trên trang này', 'error');
+                this.showStatus('Không tìm thấy video trên trang này', 'warning');
             }
         } catch (error) {
-            this.showStatus('Không thể kết nối với trang web', 'error');
+            this.showStatus('Lỗi khi lấy thông tin tốc độ video', 'error');
             console.error('Error getting current speed:', error);
+        }
+    }
+
+    async injectContentScript(tabId) {
+        try {
+            await chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                files: ['content.js']
+            });
+        } catch (error) {
+            console.error('Failed to inject content script:', error);
+            throw error;
         }
     }
 
@@ -83,14 +162,27 @@ class VideoSpeedController {
         try {
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             
-            const response = await chrome.tabs.sendMessage(tab.id, {
-                action: 'setSpeed',
-                speed: speed
-            });
+            let response;
+            try {
+                response = await chrome.tabs.sendMessage(tab.id, {
+                    action: 'setSpeed',
+                    speed: speed
+                });
+            } catch (connectionError) {
+                console.log('Content script not found, injecting...');
+                await this.injectContentScript(tab.id);
+                
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                response = await chrome.tabs.sendMessage(tab.id, {
+                    action: 'setSpeed',
+                    speed: speed
+                });
+            }
 
             if (response && response.success) {
-                this.updateUI(speed);
-                this.showStatus(`Đã đặt tốc độ ${speed}x`, 'success');
+                this.currentSpeed = speed;
+                this.showStatus(`Đã đặt tốc độ ${speed.toFixed(2)}x`, 'success');
             } else {
                 this.showStatus(response?.error || 'Không thể thay đổi tốc độ video', 'error');
             }
@@ -100,40 +192,53 @@ class VideoSpeedController {
         }
     }
 
-    adjustSpeed(delta) {
-        const newSpeed = Math.round((this.currentSpeed + delta) * 100) / 100;
-        this.setSpeed(Math.max(0.1, Math.min(16, newSpeed)));
-    }
-
-    applyCustomSpeed() {
-        const input = document.getElementById('customSpeedInput');
-        const speed = parseFloat(input.value);
-        
-        if (isNaN(speed)) {
-            this.showStatus('Vui lòng nhập số hợp lệ', 'error');
-            return;
+    updateSpeedDisplay(speed) {
+        const speedDisplay = document.getElementById('currentSpeed');
+        if (speedDisplay) {
+            speedDisplay.textContent = `${speed.toFixed(2)}x`;
         }
-
-        this.setSpeed(speed);
+        this.currentSpeed = speed;
     }
 
-    updateUI(speed) {
-        this.currentSpeed = speed;
+    updateSlider(speed) {
+        const slider = document.getElementById('speedSlider');
+        if (slider) {
+            slider.value = speed;
+        }
+    }
+
+    getCurrentSpeedValue() {
+        const speedDisplay = document.getElementById('currentSpeed');
+        if (speedDisplay) {
+            const speedText = speedDisplay.textContent;
+            return parseFloat(speedText.replace('x', ''));
+        }
+        return 1.0; // Default fallback
+    }
+
+    highlightNearestMark(currentSpeed) {
+        const marks = document.querySelectorAll('.mark');
+        const snapMarks = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 1.75, 2, 3, 5];
         
-        // Update current speed display
-        document.getElementById('currentSpeed').textContent = `${speed}x`;
+        // Xóa highlight cũ
+        marks.forEach(mark => mark.classList.remove('active'));
         
-        // Update custom input
-        document.getElementById('customSpeedInput').value = speed;
+        // Tìm mark gần nhất
+        let nearestMark = null;
+        let minDistance = Infinity;
         
-        // Update active button
-        const speedButtons = document.querySelectorAll('.speed-btn');
-        speedButtons.forEach(btn => {
-            btn.classList.remove('active');
-            if (parseFloat(btn.dataset.speed) === speed) {
-                btn.classList.add('active');
+        snapMarks.forEach((markValue, index) => {
+            const distance = Math.abs(currentSpeed - markValue);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestMark = marks[index];
             }
         });
+        
+        // Highlight mark gần nhất nếu đủ gần
+        if (nearestMark && minDistance <= 0.1) {
+            nearestMark.classList.add('active');
+        }
     }
 
     showStatus(message, type = 'info') {
@@ -142,19 +247,16 @@ class VideoSpeedController {
         
         statusElement.textContent = message;
         
-        // Remove existing status classes
-        statusContainer.classList.remove('success', 'error');
+        statusContainer.classList.remove('success', 'error', 'warning');
         
-        // Add new status class
         if (type !== 'info') {
             statusContainer.classList.add(type);
         }
 
-        // Auto-hide success messages after 3 seconds
-        if (type === 'success') {
+        if (type === 'success' || type === 'warning') {
             setTimeout(() => {
-                if (statusContainer.classList.contains('success')) {
-                    statusContainer.classList.remove('success');
+                if (statusContainer.classList.contains(type)) {
+                    statusContainer.classList.remove(type);
                     statusElement.textContent = 'Sẵn sàng điều khiển video';
                 }
             }, 3000);
@@ -162,45 +264,36 @@ class VideoSpeedController {
     }
 }
 
-// Initialize the controller when DOM is loaded
+// Initialize controller when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new VideoSpeedController();
+    const controller = new VideoSpeedController();
+    controller.init();
 });
 
-// Handle keyboard shortcuts
+// Keyboard shortcuts - Updated to new key combinations
 document.addEventListener('keydown', (e) => {
-    if (e.target.tagName === 'INPUT') return;
+    // Check for Ctrl+Shift+Arrow (Windows/Linux) or Cmd+Shift+Arrow (Mac)
+    const isCtrlOrCmd = e.ctrlKey || e.metaKey;
     
-    const controller = window.videoSpeedController;
-    if (!controller) return;
-
-    switch (e.key) {
-        case '-':
-        case '_':
+    if (isCtrlOrCmd && e.shiftKey) {
+        if (e.key === 'ArrowRight') {
             e.preventDefault();
-            controller.adjustSpeed(-0.25);
-            break;
-        case '+':
-        case '=':
+            // Increase speed by 0.25
+            const currentSlider = document.getElementById('speedSlider');
+            if (currentSlider) {
+                const newSpeed = Math.min(16, parseFloat(currentSlider.value) + 0.25);
+                currentSlider.value = newSpeed;
+                currentSlider.dispatchEvent(new Event('input'));
+            }
+        } else if (e.key === 'ArrowLeft') {
             e.preventDefault();
-            controller.adjustSpeed(0.25);
-            break;
-        case '0':
-            e.preventDefault();
-            controller.setSpeed(1.0);
-            break;
-        case '1':
-            e.preventDefault();
-            controller.setSpeed(1.0);
-            break;
-        case '2':
-            e.preventDefault();
-            controller.setSpeed(2.0);
-            break;
+            // Decrease speed by 0.25
+            const currentSlider = document.getElementById('speedSlider');
+            if (currentSlider) {
+                const newSpeed = Math.max(0.1, parseFloat(currentSlider.value) - 0.25);
+                currentSlider.value = newSpeed;
+                currentSlider.dispatchEvent(new Event('input'));
+            }
+        }
     }
-});
-
-// Store controller instance globally for keyboard shortcuts
-document.addEventListener('DOMContentLoaded', () => {
-    window.videoSpeedController = new VideoSpeedController();
 });

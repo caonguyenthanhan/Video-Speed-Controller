@@ -8,52 +8,60 @@
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h2>Video Speed Controller</h2>
-            <div class="current-speed">
-                <span>Tốc độ hiện tại: </span>
-                <span id="currentSpeed">1.0x</span>
+            <h1>Video Speed Controller</h1>
+            <div class="shortcuts-toggle" id="shortcutsToggle">⌨️</div>
+        </div>
+
+        <!-- Shortcuts Section (Collapsible) -->
+        <div class="shortcuts-section" id="shortcutsSection">
+            <div class="shortcuts-content">
+                <span class="shortcut-text">Ctrl+Shift+← / → để điều chỉnh tốc độ</span>
             </div>
         </div>
-        
-        <div class="speed-controls">
-            <div class="preset-speeds">
-                <h3>Tốc độ nhanh</h3>
-                <div class="speed-buttons">
-                    <button class="speed-btn" data-speed="0.25">0.25x</button>
-                    <button class="speed-btn" data-speed="0.5">0.5x</button>
-                    <button class="speed-btn" data-speed="0.75">0.75x</button>
-                    <button class="speed-btn active" data-speed="1">1.0x</button>
-                    <button class="speed-btn" data-speed="1.25">1.25x</button>
-                    <button class="speed-btn" data-speed="1.5">1.5x</button>
-                    <button class="speed-btn" data-speed="1.75">1.75x</button>
-                    <button class="speed-btn" data-speed="2">2.0x</button>
-                </div>
+
+        <!-- Main Control -->
+        <div class="main-control">
+            <div class="speed-display">
+                <button class="speed-btn decrease" id="decreaseSpeed">-</button>
+                <span id="currentSpeed">1.00x</span>
+                <button class="speed-btn increase" id="increaseSpeed">+</button>
             </div>
             
-            <div class="fine-controls">
-                <h3>Điều chỉnh tinh</h3>
-                <div class="fine-buttons">
-                    <button id="decreaseSpeed" class="control-btn">-0.25</button>
-                    <button id="resetSpeed" class="control-btn reset">Reset</button>
-                    <button id="increaseSpeed" class="control-btn">+0.25</button>
+            <div class="slider-container">
+                <input type="range" 
+                       id="speedSlider" 
+                       min="0.1" 
+                       max="5" 
+                       step="0.05" 
+                       value="1.0"
+                       class="speed-slider">
+                <div class="slider-marks">
+                    <div class="mark" data-value="0.1">0.1x</div>
+                    <div class="mark" data-value="0.25">0.25x</div>
+                    <div class="mark" data-value="0.5">0.5x</div>
+                    <div class="mark" data-value="0.75">  0.75x</div>
+                    <div class="mark" data-value="1">1x</div>
+                    <div class="mark" data-value="1.5">1.5x</div>
+                    <div class="mark" data-value="1.75">1.75x</div>
+                    <div class="mark" data-value="2">2x</div>
+                    <div class="mark" data-value="2.5">2.5x</div>
+                    <div class="mark" data-value="3">3x</div>
+                    <div class="mark" data-value="4">4x</div>
+                    <div class="mark" data-value="5">5x</div>
                 </div>
             </div>
-            
-            <div class="custom-speed">
-                <h3>Tốc độ tùy chỉnh</h3>
-                <div class="custom-input">
-                    <input type="number" id="customSpeedInput" min="0.1" max="16" step="0.1" value="1.0">
-                    <button id="applyCustomSpeed" class="control-btn">Áp dụng</button>
-                </div>
-            </div>
+
+            <button id="resetSpeed" class="reset-btn">RESET</button>
         </div>
-        
+
+        <!-- Status -->
         <div class="status">
-            <div id="statusMessage">Sẵn sàng điều khiển video</div>
+            <span id="statusMessage">Sẵn sàng điều khiển video</span>
         </div>
     </div>
-    
+
     <script src="popup.js"></script>
 </body>
 </html>

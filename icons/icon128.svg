@@ -1,5 +1,0 @@
-<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
-  <rect width="128" height="128" rx="16" fill="#4285f4"/>
-  <polygon points="40,32 40,96 88,64" fill="white"/>
-  <text x="96" y="48" font-family="Arial" font-size="24" fill="white">2x</text>
-</svg>
