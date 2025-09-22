@@ -58,14 +58,16 @@
 - Thêm các trường hợp sử dụng: Học tập, Giải trí, Công việc
 - Responsive design với gradient background và animations
 
-### Cập nhật video YouTube (đã hoàn thành)
-- Thay thế video HTML5 bằng YouTube iframe embed
-- Sử dụng video "Never Gonna Give You Up" của Rick Astley <mcreference link="https://www.youtube.com/watch?v=dQw4w9WgXcQ" index="0">0</mcreference>
-- Cập nhật JavaScript demo buttons để chỉ hiển thị visual feedback
-- Thêm thông báo rõ ràng rằng cần sử dụng extension để điều khiển thực tế
-- Giữ nguyên styling và responsive design
-- Cập nhật iframe với link embed chính xác từ YouTube
-- Cải thiện formatting và responsive design cho iframe
+### Khắc phục lỗi video và tạo demo area (vừa hoàn thành)
+- Gặp lỗi "Video không có sẵn" với YouTube iframe embed
+- Thử nghiệm nhiều nguồn video HTML5 nhưng đều bị chặn bởi CORS/network
+- Thay thế bằng demo area với gradient background và icon 🎬
+- Tạo interactive demo display hiển thị tốc độ real-time
+- Cập nhật JavaScript để hoạt động với demo area:
+  - Animation scale và color change khi click nút tốc độ
+  - Hiển thị tốc độ trong demo area với hiệu ứng visual
+  - Giữ nguyên speed indicator popup
+- Thông báo rõ ràng đây là demo và cần extension để điều khiển video thực
 
 ## Bước tiếp theo
 - Test layout trên các độ phân giải khác nhau
