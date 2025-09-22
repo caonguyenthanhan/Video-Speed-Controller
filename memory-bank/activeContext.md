@@ -6,6 +6,7 @@
 - ✅ Thêm marks 4x và 2.5x vào HTML và CSS
 - ✅ Cập nhật CSS để phân bố marks đều trên 3 tầng
 - ✅ **HOÀN THÀNH: Thêm tính năng chọn loại phím tắt**
+- ✅ **HOÀN THÀNH: Khắc phục lỗi Chrome API và storage**
 
 ## Thay đổi gần đây
 ### Layout 3 tầng (đã hoàn thành)
@@ -16,7 +17,7 @@
   - Tầng 2 (top: 30px): 0.75x, 1.25x, 1.5x, 2.5x, 3x  
   - Tầng 3 (top: 50px): 1x, 1.75x, 2x
 
-### Tính năng phím tắt mới (vừa hoàn thành)
+### Tính năng phím tắt mới (đã hoàn thành)
 - Thêm giao diện chọn phím tắt trong popup.html với dropdown và phần tùy chỉnh
 - Cập nhật CSS cho phần cài đặt phím tắt với animation và styling đẹp
 - Thêm logic JavaScript trong popup.js để:
@@ -30,6 +31,32 @@
   - Phím tắt tùy chỉnh
   - Xử lý message từ popup để cập nhật phím tắt real-time
 - Tạo trang test.html để kiểm tra tính năng
+
+### Khắc phục lỗi Chrome API (đã hoàn thành)
+- Thêm "storage" permission vào manifest.json để khắc phục lỗi storage API
+- Cập nhật popup.js với error handling toàn diện:
+  - Kiểm tra availability của chrome.storage.sync
+  - Xử lý lỗi tabs API và sendMessage
+  - Thêm fallback cho trường hợp API không khả dụng
+  - Hiển thị thông báo lỗi thân thiện cho người dùng
+- Cập nhật content.js với error handling:
+  - Kiểm tra chrome.runtime.onMessage availability
+  - Xử lý lỗi trong message listener
+  - Graceful degradation khi API không khả dụng
+- Cập nhật test.html với links đến trang web thực (YouTube, Vimeo) thay vì chrome:// URLs
+
+### Cập nhật test.html cho GitHub (vừa hoàn thành)
+- Redesign hoàn toàn với giao diện hiện đại và chuyên nghiệp
+- Thêm link trực tiếp đến GitHub repository: https://github.com/caonguyenthanhan/Video-Speed-Controller
+- Tạo feature grid showcase các tính năng chính:
+  - Điều khiển tốc độ linh hoạt (0.1x-16x)
+  - Hiệu suất cao với MutationObserver
+  - Tương thích rộng (YouTube, Netflix, Vimeo)
+  - Hỗ trợ đa video
+- Thêm demo buttons tương tác cho test tốc độ video
+- Cập nhật phím tắt mặc định thành Shift + (-/+/0)
+- Thêm các trường hợp sử dụng: Học tập, Giải trí, Công việc
+- Responsive design với gradient background và animations
 
 ## Bước tiếp theo
 - Test layout trên các độ phân giải khác nhau
