@@ -1,25 +1,40 @@
 # Active Context - Video Speed Controller Extension
 
 ## Trọng tâm công việc hiện tại
+- ✅ Hoàn thành layout 3 tầng cho speed marks (0.1x-1x, 1x-3x, 3x-5x)
+- ✅ Tăng độ cao container từ 35px lên 50px để chứa layout mới
+- ✅ Thêm marks 4x và 2.5x vào HTML và CSS
+- ✅ Cập nhật CSS để phân bố marks đều trên 3 tầng
+- ✅ **HOÀN THÀNH: Thêm tính năng chọn loại phím tắt**
 
-Đã hoàn thành việc tạo layout 3 tầng cho marks theo yêu cầu:
-- Tăng độ cao container slider-marks từ 35px lên 50px để chứa 3 tầng
-- Tầng 1 (top: 8px): 0.1x, 1x, 2x, 3x, 4x, 5x
-- Tầng 2 (top: 22px): 0.25x, 0.75x, 1.75x  
-- Tầng 3 (top: 36px): 0.5x, 1.5x, 2.5x
-- Thêm marks 4x và 2.5x vào HTML để hoàn thiện layout
+## Thay đổi gần đây
+### Layout 3 tầng (đã hoàn thành)
+- Tăng độ cao `.slider-marks` từ 35px lên 50px
+- Thêm marks 4x (top: 10px) và 2.5x (top: 30px) vào HTML
+- Cập nhật CSS positioning cho tất cả marks để phân bố trên 3 tầng:
+  - Tầng 1 (top: 10px): 0.1x, 0.25x, 0.5x, 4x, 5x
+  - Tầng 2 (top: 30px): 0.75x, 1.25x, 1.5x, 2.5x, 3x  
+  - Tầng 3 (top: 50px): 1x, 1.75x, 2x
 
-# Những thay đổi gần đây
+### Tính năng phím tắt mới (vừa hoàn thành)
+- Thêm giao diện chọn phím tắt trong popup.html với dropdown và phần tùy chỉnh
+- Cập nhật CSS cho phần cài đặt phím tắt với animation và styling đẹp
+- Thêm logic JavaScript trong popup.js để:
+  - Xử lý thay đổi loại phím tắt
+  - Capture phím tắt tùy chỉnh
+  - Lưu cài đặt vào Chrome storage
+  - Cập nhật hiển thị phím tắt
+- Cập nhật content.js để hỗ trợ:
+  - Ctrl+Shift+← / → (mặc định)
+  - Ctrl+Alt+← / →
+  - Phím tắt tùy chỉnh
+  - Xử lý message từ popup để cập nhật phím tắt real-time
+- Tạo trang test.html để kiểm tra tính năng
 
-- Tạo layout 3 tầng cho marks theo yêu cầu người dùng
-- Tăng độ cao container từ 35px lên 50px để chứa đủ 3 tầng
-- Phân bố lại vị trí các marks theo 3 tầng rõ ràng
-- Thêm marks 4x và 2.5x vào HTML để đầy đủ các giá trị
-- Điều chỉnh vị trí top cho từng tầng: 8px, 22px, 36px
-
-## Các bước tiếp theo
-- Test extension với giao diện đơn giản mới
-- Đảm bảo tương thích với các trang web khác nhau
+## Bước tiếp theo
+- Test layout trên các độ phân giải khác nhau
+- Kiểm tra tương thích với các trình duyệt khác
+- Có thể điều chỉnh spacing nếu cần thiết
 
 ## Giao diện popup hiện tại
 - Header với tên "Video Speed Controller" 

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Video Speed Controller</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        video {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .test-steps {
+            background: #f3e5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .test-steps h3 {
+            margin-top: 0;
+            color: #7b1fa2;
+        }
+        .test-steps ol {
+            margin: 10px 0;
+        }
+        .test-steps li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Test Video Speed Controller Extension</h1>
+        
+        <div class="instructions">
+            <h3>📋 Hướng dẫn test:</h3>
+            <p>Trang này được tạo để test tính năng chọn phím tắt của Video Speed Controller Extension.</p>
+            <p>Video dưới đây sẽ được sử dụng để kiểm tra các phím tắt khác nhau.</p>
+        </div>
+
+        <video controls>
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+            Video không được hỗ trợ bởi trình duyệt này.
+        </video>
+
+        <div class="test-steps">
+            <h3>🧪 Các bước test:</h3>
+            <ol>
+                <li><strong>Mở Extension:</strong> Click vào icon Video Speed Controller trên thanh công cụ</li>
+                <li><strong>Mở cài đặt phím tắt:</strong> Click vào icon ⌨️ để mở phần cài đặt</li>
+                <li><strong>Test Ctrl+Shift:</strong>
+                    <ul>
+                        <li>Chọn "Ctrl+Shift+← / →" trong dropdown</li>
+                        <li>Phát video và thử Ctrl+Shift+← (giảm tốc độ)</li>
+                        <li>Thử Ctrl+Shift+→ (tăng tốc độ)</li>
+                    </ul>
+                </li>
+                <li><strong>Test Ctrl+Alt:</strong>
+                    <ul>
+                        <li>Chọn "Ctrl+Alt+← / →" trong dropdown</li>
+                        <li>Phát video và thử Ctrl+Alt+← (giảm tốc độ)</li>
+                        <li>Thử Ctrl+Alt+→ (tăng tốc độ)</li>
+                    </ul>
+                </li>
+                <li><strong>Test phím tắt tùy chỉnh:</strong>
+                    <ul>
+                        <li>Chọn "Tự gắn phím" trong dropdown</li>
+                        <li>Click vào ô "Giảm tốc độ" và nhấn tổ hợp phím (ví dụ: Ctrl+Q)</li>
+                        <li>Click vào ô "Tăng tốc độ" và nhấn tổ hợp phím (ví dụ: Ctrl+E)</li>
+                        <li>Click nút "Lưu"</li>
+                        <li>Test các phím tắt vừa thiết lập</li>
+                    </ul>
+                </li>
+                <li><strong>Kiểm tra hiển thị:</strong> Xác nhận text phím tắt hiển thị đúng theo lựa chọn</li>
+            </ol>
+        </div>
+
+        <div class="instructions">
+            <h3>✅ Kết quả mong đợi:</h3>
+            <ul>
+                <li>Tốc độ video thay đổi khi nhấn phím tắt</li>
+                <li>Hiển thị tốc độ cập nhật real-time</li>
+                <li>Phím tắt được lưu và áp dụng ngay lập tức</li>
+                <li>Text hướng dẫn cập nhật theo phím tắt đã chọn</li>
+                <li>Phím tắt tùy chỉnh hoạt động chính xác</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

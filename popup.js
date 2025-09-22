@@ -7,6 +7,8 @@ class VideoSpeedController {
         this.bindEvents();
         this.getCurrentSpeed();
         this.setupShortcutsToggle();
+        this.setupShortcutSettings();
+        this.loadShortcutSettings();
     }
 
     bindEvents() {
@@ -103,8 +105,207 @@ class VideoSpeedController {
         }
     }
 
+    setupShortcutSettings() {
+        const shortcutType = document.getElementById('shortcutType');
+        const customShortcut = document.getElementById('customShortcut');
+        const customDecrease = document.getElementById('customDecrease');
+        const customIncrease = document.getElementById('customIncrease');
+        const saveCustom = document.getElementById('saveCustom');
+
+        // Handle shortcut type change
+        if (shortcutType) {
+            shortcutType.addEventListener('change', (e) => {
+                const value = e.target.value;
+                if (value === 'custom') {
+                    customShortcut.style.display = 'flex';
+                } else {
+                    customShortcut.style.display = 'none';
+                    this.saveShortcutSettings(value);
+                    this.updateShortcutDisplay(value);
+                }
+            });
+        }
+
+        // Handle custom key capture
+        let capturingKey = null;
+        
+        if (customDecrease) {
+            customDecrease.addEventListener('focus', () => {
+                capturingKey = 'decrease';
+                customDecrease.placeholder = 'Nhấn tổ hợp phím...';
+            });
+        }
+
+        if (customIncrease) {
+            customIncrease.addEventListener('focus', () => {
+                capturingKey = 'increase';
+                customIncrease.placeholder = 'Nhấn tổ hợp phím...';
+            });
+        }
+
+        // Capture key combinations
+        document.addEventListener('keydown', (e) => {
+            if (capturingKey && (document.activeElement === customDecrease || document.activeElement === customIncrease)) {
+                e.preventDefault();
+                
+                const keys = [];
+                if (e.ctrlKey) keys.push('Ctrl');
+                if (e.altKey) keys.push('Alt');
+                if (e.shiftKey) keys.push('Shift');
+                if (e.metaKey) keys.push('Cmd');
+                
+                if (e.key && !['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) {
+                    keys.push(e.key);
+                }
+                
+                const keyCombo = keys.join('+');
+                if (capturingKey === 'decrease') {
+                    customDecrease.value = keyCombo;
+                } else if (capturingKey === 'increase') {
+                    customIncrease.value = keyCombo;
+                }
+                
+                document.activeElement.blur();
+                capturingKey = null;
+            }
+        });
+
+        // Save custom shortcuts
+        if (saveCustom) {
+            saveCustom.addEventListener('click', () => {
+                const decreaseKey = customDecrease.value;
+                const increaseKey = customIncrease.value;
+                
+                if (decreaseKey && increaseKey) {
+                    const customSettings = {
+                        type: 'custom',
+                        decrease: decreaseKey,
+                        increase: increaseKey
+                    };
+                    this.saveShortcutSettings(customSettings);
+                    this.updateShortcutDisplay('custom', customSettings);
+                    this.showStatus('Đã lưu phím tắt tùy chỉnh!', 'success');
+                } else {
+                    this.showStatus('Vui lòng thiết lập cả hai phím tắt!', 'error');
+                }
+            });
+        }
+    }
+
+    async loadShortcutSettings() {
+        try {
+            // Check if chrome.storage is available
+            if (!chrome || !chrome.storage || !chrome.storage.sync) {
+                console.warn('Chrome storage API not available');
+                this.setDefaultShortcutSettings();
+                return;
+            }
+
+            const result = await chrome.storage.sync.get(['shortcutSettings']);
+            const settings = result.shortcutSettings || { type: 'ctrl+shift' };
+            
+            const shortcutType = document.getElementById('shortcutType');
+            const customShortcut = document.getElementById('customShortcut');
+            
+            if (shortcutType) {
+                shortcutType.value = settings.type;
+                
+                if (settings.type === 'custom') {
+                    customShortcut.style.display = 'flex';
+                    if (settings.decrease) document.getElementById('customDecrease').value = settings.decrease;
+                    if (settings.increase) document.getElementById('customIncrease').value = settings.increase;
+                }
+            }
+            
+            this.updateShortcutDisplay(settings.type, settings);
+        } catch (error) {
+            console.error('Error loading shortcut settings:', error);
+            this.setDefaultShortcutSettings();
+        }
+    }
+
+    setDefaultShortcutSettings() {
+        const settings = { type: 'ctrl+shift' };
+        const shortcutType = document.getElementById('shortcutType');
+        const customShortcut = document.getElementById('customShortcut');
+        
+        if (shortcutType) {
+            shortcutType.value = settings.type;
+            customShortcut.style.display = 'none';
+        }
+        
+        this.updateShortcutDisplay(settings.type, settings);
+    }
+
+    async saveShortcutSettings(settings) {
+        try {
+            // Check if chrome.storage is available
+            if (!chrome || !chrome.storage || !chrome.storage.sync) {
+                console.warn('Chrome storage API not available - settings not saved');
+                this.showStatus('Không thể lưu cài đặt (Chrome API không khả dụng)', 'error');
+                return;
+            }
+
+            const settingsToSave = typeof settings === 'string' ? { type: settings } : settings;
+            await chrome.storage.sync.set({ shortcutSettings: settingsToSave });
+            
+            // Send message to content script to update shortcuts
+            if (chrome.tabs && chrome.tabs.query) {
+                try {
+                    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+                    if (tabs[0] && chrome.tabs.sendMessage) {
+                        chrome.tabs.sendMessage(tabs[0].id, {
+                            action: 'updateShortcuts',
+                            settings: settingsToSave
+                        }).catch(err => {
+                            console.warn('Could not send message to content script:', err);
+                        });
+                    }
+                } catch (tabError) {
+                    console.warn('Could not access tabs API:', tabError);
+                }
+            }
+        } catch (error) {
+            console.error('Error saving shortcut settings:', error);
+            this.showStatus('Lỗi khi lưu cài đặt phím tắt', 'error');
+        }
+    }
+
+    updateShortcutDisplay(type, customSettings = null) {
+        const display = document.getElementById('shortcutDisplay');
+        if (!display) return;
+
+        let text = '';
+        switch (type) {
+            case 'ctrl+shift':
+                text = 'Ctrl+Shift+← / → để điều chỉnh tốc độ';
+                break;
+            case 'ctrl+alt':
+                text = 'Ctrl+Alt+← / → để điều chỉnh tốc độ';
+                break;
+            case 'custom':
+                if (customSettings && customSettings.decrease && customSettings.increase) {
+                    text = `${customSettings.decrease} / ${customSettings.increase} để điều chỉnh tốc độ`;
+                } else {
+                    text = 'Phím tắt tùy chỉnh chưa được thiết lập';
+                }
+                break;
+            default:
+                text = 'Ctrl+Shift+← / → để điều chỉnh tốc độ';
+        }
+        
+        display.textContent = text;
+    }
+
     async getCurrentSpeed() {
         try {
+            // Check if chrome.tabs is available
+            if (!chrome || !chrome.tabs || !chrome.tabs.query) {
+                console.warn('Chrome tabs API not available');
+                this.showStatus('Chrome API không khả dụng', 'warning');
+                return;
+            }
+
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             
             let response;

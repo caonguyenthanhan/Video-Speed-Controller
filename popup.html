@@ -17,7 +17,31 @@
         <!-- Shortcuts Section (Collapsible) -->
         <div class="shortcuts-section" id="shortcutsSection">
             <div class="shortcuts-content">
-                <span class="shortcut-text">Ctrl+Shift+← / → để điều chỉnh tốc độ</span>
+                <span class="shortcut-text" id="shortcutDisplay">Ctrl+Shift+← / → để điều chỉnh tốc độ</span>
+                
+                <!-- Shortcut Settings -->
+                <div class="shortcut-settings">
+                    <div class="setting-group">
+                        <label>Chọn phím tắt:</label>
+                        <select id="shortcutType" class="shortcut-select">
+                            <option value="ctrl+shift">Ctrl+Shift+← / →</option>
+                            <option value="ctrl+alt">Ctrl+Alt+← / →</option>
+                            <option value="custom">Tự gắn phím</option>
+                        </select>
+                    </div>
+                    
+                    <div class="custom-shortcut" id="customShortcut" style="display: none;">
+                        <div class="custom-group">
+                            <label>Giảm tốc độ:</label>
+                            <input type="text" id="customDecrease" placeholder="Nhấn phím..." readonly>
+                        </div>
+                        <div class="custom-group">
+                            <label>Tăng tốc độ:</label>
+                            <input type="text" id="customIncrease" placeholder="Nhấn phím..." readonly>
+                        </div>
+                        <button id="saveCustom" class="save-btn">Lưu</button>
+                    </div>
+                </div>
             </div>
         </div>
 

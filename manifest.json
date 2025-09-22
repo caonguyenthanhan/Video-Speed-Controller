@@ -5,7 +5,8 @@
   "description": "Điều khiển tốc độ video dễ dàng trên bất kỳ trang web nào",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "action": {
     "default_popup": "popup.html",

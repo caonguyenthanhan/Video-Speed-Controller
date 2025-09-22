@@ -12,7 +12,7 @@ class VideoSpeedManager {
         this.createSpeedDisplay();
         this.setupVideoObserver();
         this.setupMessageListener();
-        this.setupKeyboardShortcuts();
+        this.loadShortcutSettings();
         
         // Check for videos periodically
         setInterval(() => {
@@ -95,35 +95,72 @@ class VideoSpeedManager {
     }
 
     setupMessageListener() {
-        chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            switch (request.action) {
-                case 'setSpeed':
-                    this.setSpeed(request.speed);
-                    sendResponse({ success: true, speed: this.currentSpeed });
-                    break;
-                    
-                case 'getCurrentSpeed':
-                    sendResponse({ speed: this.currentSpeed, videoCount: this.videos.length });
-                    break;
-                    
-                case 'getVideoInfo':
-                    sendResponse({
-                        videoCount: this.videos.length,
-                        speed: this.currentSpeed,
-                        hasActiveVideo: this.hasActiveVideo()
-                    });
-                    break;
-                    
-                default:
-                    sendResponse({ error: 'Unknown action' });
+        try {
+            if (!chrome || !chrome.runtime || !chrome.runtime.onMessage) {
+                console.warn('Chrome runtime API not available in content script');
+                return;
             }
-            
-            return true; // Keep message channel open for async response
-        });
+
+            chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+                try {
+                    switch (request.action) {
+                        case 'setSpeed':
+                            this.setSpeed(request.speed);
+                            sendResponse({ success: true, speed: this.currentSpeed });
+                            break;
+                            
+                        case 'getCurrentSpeed':
+                            sendResponse({ speed: this.currentSpeed, videoCount: this.videos.length });
+                            break;
+                            
+                        case 'getVideoInfo':
+                            sendResponse({
+                                videoCount: this.videos.length,
+                                speed: this.currentSpeed,
+                                hasActiveVideo: this.hasActiveVideo()
+                            });
+                            break;
+                            
+                        case 'updateShortcuts':
+                            this.shortcutSettings = request.settings;
+                            this.setupKeyboardShortcuts();
+                            sendResponse({ success: true });
+                            break;
+                            
+                        default:
+                            sendResponse({ success: false, error: 'Unknown action' });
+                    }
+                } catch (error) {
+                    console.error('Error handling message:', error);
+                    sendResponse({ success: false, error: error.message });
+                }
+                
+                return true; // Keep message channel open for async response
+            });
+        } catch (error) {
+            console.error('Error setting up message listener:', error);
+        }
+    }
+
+    async loadShortcutSettings() {
+        try {
+            const result = await chrome.storage.sync.get(['shortcutSettings']);
+            this.shortcutSettings = result.shortcutSettings || { type: 'ctrl+shift' };
+            this.setupKeyboardShortcuts();
+        } catch (error) {
+            console.error('Error loading shortcut settings:', error);
+            this.shortcutSettings = { type: 'ctrl+shift' };
+            this.setupKeyboardShortcuts();
+        }
     }
 
     setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
+        // Remove existing listener if any
+        if (this.keydownHandler) {
+            document.removeEventListener('keydown', this.keydownHandler);
+        }
+
+        this.keydownHandler = (e) => {
             // Only work when no input is focused
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
                 return;
@@ -135,21 +172,45 @@ class VideoSpeedManager {
             }
 
             let handled = false;
-            
-            // Check for Ctrl+Shift+Arrow (Windows/Linux) or Cmd+Shift+Arrow (Mac)
-            const isCtrlOrCmd = e.ctrlKey || e.metaKey;
 
-            if (isCtrlOrCmd && e.shiftKey) {
-                switch (e.code) {
-                    case 'ArrowRight':
-                        this.adjustSpeed(0.25);
-                        handled = true;
-                        break;
-                        
-                    case 'ArrowLeft':
-                        this.adjustSpeed(-0.25);
-                        handled = true;
-                        break;
+            // Handle different shortcut types
+            if (this.shortcutSettings.type === 'ctrl+shift') {
+                const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+                if (isCtrlOrCmd && e.shiftKey) {
+                    switch (e.code) {
+                        case 'ArrowRight':
+                            this.adjustSpeed(0.25);
+                            handled = true;
+                            break;
+                        case 'ArrowLeft':
+                            this.adjustSpeed(-0.25);
+                            handled = true;
+                            break;
+                    }
+                }
+            } else if (this.shortcutSettings.type === 'ctrl+alt') {
+                const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+                if (isCtrlOrCmd && e.altKey) {
+                    switch (e.code) {
+                        case 'ArrowRight':
+                            this.adjustSpeed(0.25);
+                            handled = true;
+                            break;
+                        case 'ArrowLeft':
+                            this.adjustSpeed(-0.25);
+                            handled = true;
+                            break;
+                    }
+                }
+            } else if (this.shortcutSettings.type === 'custom') {
+                // Handle custom shortcuts
+                const currentCombo = this.getKeyCombo(e);
+                if (this.shortcutSettings.increase && currentCombo === this.shortcutSettings.increase) {
+                    this.adjustSpeed(0.25);
+                    handled = true;
+                } else if (this.shortcutSettings.decrease && currentCombo === this.shortcutSettings.decrease) {
+                    this.adjustSpeed(-0.25);
+                    handled = true;
                 }
             }
 
@@ -184,7 +245,23 @@ class VideoSpeedManager {
                 e.preventDefault();
                 e.stopPropagation();
             }
-        });
+        };
+
+        document.addEventListener('keydown', this.keydownHandler);
+    }
+
+    getKeyCombo(e) {
+        const keys = [];
+        if (e.ctrlKey) keys.push('Ctrl');
+        if (e.altKey) keys.push('Alt');
+        if (e.shiftKey) keys.push('Shift');
+        if (e.metaKey) keys.push('Cmd');
+        
+        if (e.key && !['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) {
+            keys.push(e.key);
+        }
+        
+        return keys.join('+');
     }
 
     setSpeed(speed) {

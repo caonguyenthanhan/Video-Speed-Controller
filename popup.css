@@ -47,11 +47,12 @@ body {
 /* Shortcuts Section */
 .shortcuts-section {
     background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
     padding: 8px 12px;
     margin-bottom: 4px;
     transition: all 0.3s ease;
-    max-height: 40px;
+    max-height: 200px;
     overflow: hidden;
 }
 
@@ -63,14 +64,103 @@ body {
 
 .shortcuts-content {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .shortcut-text {
     font-size: 12px;
     color: rgba(255, 255, 255, 0.9);
     text-align: center;
+}
+
+/* Shortcut Settings */
+.shortcut-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.setting-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.setting-group label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+}
+
+.shortcut-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: white;
+    padding: 6px 8px;
+    font-size: 11px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.shortcut-select:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.shortcut-select option {
+    background: #2a2a2a;
+    color: white;
+}
+
+.custom-shortcut {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.custom-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.custom-group input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: white;
+    padding: 4px 6px;
+    font-size: 10px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.custom-group input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.save-btn {
+    background: rgba(76, 175, 80, 0.8);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: 6px 12px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.save-btn:hover {
+    background: rgba(76, 175, 80, 1);
+    transform: translateY(-1px);
 }
 
 /* Main Control */
