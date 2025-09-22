@@ -177,11 +177,27 @@
         <h1>🎬 Video Speed Controller</h1>
         <p class="subtitle">Một Chrome Extension mạnh mẽ và dễ sử dụng giúp bạn điều khiển tốc độ phát video trên bất kỳ trang web nào</p>
         
-        <video controls>
-            <source src="https://www.youtube.com/watch?v=dQw4w9WgXcQ" type="video/mp4">
-            <source src="https://www.w3schools.com/html/mov_bbb.ogg" type="video/ogg">
-            Your browser does not support the video tag.
-        </video>
+        <div style="position: relative; width: 100%; max-width: 700px; margin: 30px auto;">
+            <!-- <iframe 
+                width="100%" 
+                height="400" 
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?si=2uavGu_TQO-J5s56" 
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen
+                style="border: 3px solid #667eea; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+            </iframe> -->
+            <video 
+                width="100%" 
+                height="400" 
+                controls
+                style="border: 3px solid #667eea; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4" type="video/mp4">
+                Video không được hỗ trợ bởi trình duyệt này.
+            </video>
+        </div>
 
         <div class="github-link">
             <p>📂 <strong>Repository GitHub:</strong></p>
@@ -306,23 +322,19 @@
     </div>
 
     <script>
-        // Demo functionality for speed buttons
+        // Demo functionality for speed buttons - Visual feedback only
         document.querySelectorAll('.speed-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const speed = this.textContent;
-                const video = document.querySelector('video');
-                if (video) {
-                    video.playbackRate = parseFloat(speed);
-                    
-                    // Visual feedback
-                    this.style.background = '#4caf50';
-                    setTimeout(() => {
-                        this.style.background = '#667eea';
-                    }, 500);
-                    
-                    // Show speed indicator
-                    showSpeedIndicator(speed);
-                }
+                
+                // Visual feedback
+                this.style.background = '#4caf50';
+                setTimeout(() => {
+                    this.style.background = '#667eea';
+                }, 500);
+                
+                // Show speed indicator
+                showSpeedIndicator(speed);
             });
         });
 
@@ -334,7 +346,7 @@
             // Create new indicator
             const indicator = document.createElement('div');
             indicator.className = 'speed-indicator';
-            indicator.textContent = `Tốc độ: ${speed}`;
+            indicator.textContent = `Demo tốc độ: ${speed} - Sử dụng extension để điều khiển thực tế!`;
             indicator.style.cssText = `
                 position: fixed;
                 top: 20px;
@@ -345,7 +357,9 @@
                 border-radius: 5px;
                 z-index: 10000;
                 font-weight: bold;
-                animation: fadeInOut 2s ease-in-out;
+                animation: fadeInOut 3s ease-in-out;
+                max-width: 300px;
+                text-align: center;
             `;
             
             // Add animation
@@ -353,8 +367,8 @@
             style.textContent = `
                 @keyframes fadeInOut {
                     0% { opacity: 0; transform: translateY(-10px); }
-                    20% { opacity: 1; transform: translateY(0); }
-                    80% { opacity: 1; transform: translateY(0); }
+                    15% { opacity: 1; transform: translateY(0); }
+                    85% { opacity: 1; transform: translateY(0); }
                     100% { opacity: 0; transform: translateY(-10px); }
                 }
             `;
@@ -366,7 +380,7 @@
                 if (indicator.parentNode) {
                     indicator.parentNode.removeChild(indicator);
                 }
-            }, 2000);
+            }, 3000);
         }
     </script>
 </body>

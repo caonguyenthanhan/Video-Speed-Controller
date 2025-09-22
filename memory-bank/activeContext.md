@@ -45,7 +45,7 @@
   - Graceful degradation khi API không khả dụng
 - Cập nhật test.html với links đến trang web thực (YouTube, Vimeo) thay vì chrome:// URLs
 
-### Cập nhật test.html cho GitHub (vừa hoàn thành)
+### Cập nhật test.html cho GitHub (đã hoàn thành)
 - Redesign hoàn toàn với giao diện hiện đại và chuyên nghiệp
 - Thêm link trực tiếp đến GitHub repository: https://github.com/caonguyenthanhan/Video-Speed-Controller
 - Tạo feature grid showcase các tính năng chính:
@@ -57,6 +57,15 @@
 - Cập nhật phím tắt mặc định thành Shift + (-/+/0)
 - Thêm các trường hợp sử dụng: Học tập, Giải trí, Công việc
 - Responsive design với gradient background và animations
+
+### Cập nhật video YouTube (đã hoàn thành)
+- Thay thế video HTML5 bằng YouTube iframe embed
+- Sử dụng video "Never Gonna Give You Up" của Rick Astley <mcreference link="https://www.youtube.com/watch?v=dQw4w9WgXcQ" index="0">0</mcreference>
+- Cập nhật JavaScript demo buttons để chỉ hiển thị visual feedback
+- Thêm thông báo rõ ràng rằng cần sử dụng extension để điều khiển thực tế
+- Giữ nguyên styling và responsive design
+- Cập nhật iframe với link embed chính xác từ YouTube
+- Cải thiện formatting và responsive design cho iframe
 
 ## Bước tiếp theo
 - Test layout trên các độ phân giải khác nhau
