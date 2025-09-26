@@ -186,6 +186,14 @@ class VideoSpeedManager {
                             this.adjustSpeed(-0.25);
                             handled = true;
                             break;
+                        case 'ArrowUp':
+                            this.setSpeed(1.0); // Reset speed
+                            handled = true;
+                            break;
+                        case 'ArrowDown':
+                            this.openPopup(); // Open control panel
+                            handled = true;
+                            break;
                     }
                 }
             } else if (this.shortcutSettings.type === 'ctrl+alt') {
@@ -198,6 +206,14 @@ class VideoSpeedManager {
                             break;
                         case 'ArrowLeft':
                             this.adjustSpeed(-0.25);
+                            handled = true;
+                            break;
+                        case 'ArrowUp':
+                            this.setSpeed(1.0); // Reset speed
+                            handled = true;
+                            break;
+                        case 'ArrowDown':
+                            this.openPopup(); // Open control panel
                             handled = true;
                             break;
                     }
@@ -356,6 +372,17 @@ class VideoSpeedManager {
 
         const hasVideo = this.videos.length > 0;
         this.speedDisplay.style.display = hasVideo ? 'block' : 'none';
+    }
+
+    openPopup() {
+        // Send message to background script to open popup
+        try {
+            if (chrome && chrome.runtime && chrome.runtime.sendMessage) {
+                chrome.runtime.sendMessage({ action: 'openPopup' });
+            }
+        } catch (error) {
+            console.warn('Could not send message to open popup:', error);
+        }
     }
 
     destroy() {

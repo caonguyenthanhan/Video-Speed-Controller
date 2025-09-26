@@ -19,8 +19,8 @@ class VideoSpeedController {
                 let speed = parseFloat(e.target.value);
                 
                 // Snap to marks logic - dính vào các vạch khi gần
-                const snapMarks = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 1.75, 2, 3, 5];
-                const snapThreshold = 0.1; // Khoảng cách để snap
+                const snapMarks = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 1.75, 2, 2.5, 3, 4, 5];
+                const snapThreshold = 0.1; // Khoảng cách để snap vào mark
                 
                 for (const mark of snapMarks) {
                     if (Math.abs(speed - mark) <= snapThreshold) {
@@ -419,7 +419,7 @@ class VideoSpeedController {
 
     highlightNearestMark(currentSpeed) {
         const marks = document.querySelectorAll('.mark');
-        const snapMarks = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 1.75, 2, 3, 5];
+        const snapMarks = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 1.75, 2, 2.5, 3, 4, 5];
         
         // Xóa highlight cũ
         marks.forEach(mark => mark.classList.remove('active'));

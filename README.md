@@ -48,6 +48,10 @@ Một Chrome Extension mạnh mẽ và dễ sử dụng giúp bạn điều khi�
 | `Shift + -` | Giảm tốc độ 0.25x |
 | `Shift + +` | Tăng tốc độ 0.25x |
 | `Shift + 0` | Reset về tốc độ 1x |
+| `Ctrl + Alt + ↑` hoặc `Ctrl + Shift + ↑` | Reset về tốc độ 1x |
+| `Ctrl + Alt + ↓` hoặc `Ctrl + Shift + ↓` | Mở màn hình điều khiển |
+| `Ctrl + Alt + →` hoặc `Ctrl + Shift + →` | Tăng tốc độ 0.25x |
+| `Ctrl + Alt + ←` hoặc `Ctrl + Shift + ←` | Giảm tốc độ 0.25x |
 
 ### Hiển thị trên màn hình
 
