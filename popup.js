@@ -1,9 +1,11 @@
 class VideoSpeedController {
     constructor() {
         this.currentSpeed = 1.0;
+        this.SPEEDS = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 1.75, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 16];
     }
 
     init() {
+        this.setupSpeedMarks();
         this.bindEvents();
         this.getCurrentSpeed();
         this.setupShortcutsToggle();
@@ -11,46 +13,102 @@ class VideoSpeedController {
         this.loadShortcutSettings();
     }
 
+    setupSpeedMarks() {
+        const marksContainer = document.getElementById('sliderMarks');
+        if (!marksContainer) return;
+
+        marksContainer.innerHTML = '';
+
+        this.SPEEDS.forEach((speed, index) => {
+            const percent = (index / (this.SPEEDS.length - 1)) * 100;
+            const mark = document.createElement('div');
+            mark.className = `mark ${index % 2 === 0 ? 'bottom' : 'top'}`;
+            mark.style.left = `${percent}%`;
+            mark.textContent = `${speed}`;
+            mark.dataset.index = `${index}`;
+            mark.addEventListener('click', () => this.applySpeedIndex(index));
+            marksContainer.appendChild(mark);
+        });
+
+        const slider = document.getElementById('speedSlider');
+        if (slider) {
+            const index = this.clampIndex(parseInt(slider.value, 10) || 0);
+            this.updateActiveMark(index);
+        }
+    }
+
+    clampIndex(index) {
+        const maxIndex = this.SPEEDS.length - 1;
+        return Math.max(0, Math.min(maxIndex, index));
+    }
+
+    findNearestIndex(speed) {
+        let nearestIndex = 0;
+        let minDistance = Infinity;
+
+        this.SPEEDS.forEach((markSpeed, index) => {
+            const distance = Math.abs(speed - markSpeed);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestIndex = index;
+            }
+        });
+
+        return nearestIndex;
+    }
+
+    applySpeedIndex(index) {
+        const slider = document.getElementById('speedSlider');
+        const safeIndex = this.clampIndex(index);
+        if (slider) slider.value = `${safeIndex}`;
+
+        const speed = this.SPEEDS[safeIndex];
+        this.setSpeed(speed);
+        this.updateSpeedDisplay(speed);
+        this.updateActiveMark(safeIndex);
+    }
+
     bindEvents() {
         // Thanh trượt tốc độ
         const speedSlider = document.getElementById('speedSlider');
         if (speedSlider) {
             speedSlider.addEventListener('input', (e) => {
-                let speed = parseFloat(e.target.value);
-                
-                // Snap to marks logic - dính vào các vạch khi gần
-                const snapMarks = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 1.75, 2, 2.5, 3, 4, 5];
-                const snapThreshold = 0.1; // Khoảng cách để snap vào mark
-                
-                for (const mark of snapMarks) {
-                    if (Math.abs(speed - mark) <= snapThreshold) {
-                        speed = mark;
-                        e.target.value = speed; // Cập nhật giá trị slider
-                        break;
-                    }
-                }
-                
+                const index = this.clampIndex(parseInt(e.target.value, 10) || 0);
+                const speed = this.SPEEDS[index];
                 this.setSpeed(speed);
                 this.updateSpeedDisplay(speed);
+                this.updateActiveMark(index);
             });
 
             // Thêm visual feedback khi hover vào marks
             speedSlider.addEventListener('change', (e) => {
-                const speed = parseFloat(e.target.value);
-                this.highlightNearestMark(speed);
+                const index = this.clampIndex(parseInt(e.target.value, 10) || 0);
+                this.updateActiveMark(index);
             });
+        }
+
+        const sliderContainer = document.getElementById('sliderContainer');
+        if (sliderContainer) {
+            sliderContainer.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const slider = document.getElementById('speedSlider');
+                if (!slider) return;
+
+                const currentIndex = this.clampIndex(parseInt(slider.value, 10) || 0);
+                const direction = e.deltaY < 0 ? 1 : -1;
+                const newIndex = this.clampIndex(currentIndex + direction);
+                this.applySpeedIndex(newIndex);
+            }, { passive: false });
         }
 
         // Nút tăng tốc độ
         const increaseBtn = document.getElementById('increaseSpeed');
         if (increaseBtn) {
             increaseBtn.addEventListener('click', () => {
-                const currentSpeed = this.getCurrentSpeedValue();
-                const newSpeed = Math.min(5, currentSpeed + 0.25);
-                this.setSpeed(newSpeed);
-                this.updateSpeedDisplay(newSpeed);
-                this.updateSlider(newSpeed);
-                this.highlightNearestMark(newSpeed);
+                const slider = document.getElementById('speedSlider');
+                if (!slider) return;
+                const currentIndex = this.clampIndex(parseInt(slider.value, 10) || 0);
+                this.applySpeedIndex(currentIndex + 1);
             });
         }
 
@@ -58,12 +116,10 @@ class VideoSpeedController {
         const decreaseBtn = document.getElementById('decreaseSpeed');
         if (decreaseBtn) {
             decreaseBtn.addEventListener('click', () => {
-                const currentSpeed = this.getCurrentSpeedValue();
-                const newSpeed = Math.max(0.1, currentSpeed - 0.25);
-                this.setSpeed(newSpeed);
-                this.updateSpeedDisplay(newSpeed);
-                this.updateSlider(newSpeed);
-                this.highlightNearestMark(newSpeed);
+                const slider = document.getElementById('speedSlider');
+                if (!slider) return;
+                const currentIndex = this.clampIndex(parseInt(slider.value, 10) || 0);
+                this.applySpeedIndex(currentIndex - 1);
             });
         }
 
@@ -71,22 +127,15 @@ class VideoSpeedController {
         const resetBtn = document.getElementById('resetSpeed');
         if (resetBtn) {
             resetBtn.addEventListener('click', () => {
-                this.setSpeed(1.0);
-                this.updateSpeedDisplay(1.0);
-                this.updateSlider(1.0);
-                this.highlightNearestMark(1.0);
+                this.applySpeedIndex(this.findNearestIndex(1.0));
             });
         }
 
-        // Click vào marks để jump đến giá trị đó
-        const marks = document.querySelectorAll('.mark');
-        marks.forEach(mark => {
-            mark.addEventListener('click', () => {
-                const value = parseFloat(mark.dataset.value);
-                this.setSpeed(value);
-                this.updateSpeedDisplay(value);
-                this.updateSlider(value);
-                this.highlightNearestMark(value);
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                const targetSpeed = parseFloat(e.currentTarget.dataset.speed);
+                const index = this.findNearestIndex(targetSpeed);
+                this.applySpeedIndex(index);
             });
         });
     }
@@ -404,7 +453,9 @@ class VideoSpeedController {
     updateSlider(speed) {
         const slider = document.getElementById('speedSlider');
         if (slider) {
-            slider.value = speed;
+            const index = this.findNearestIndex(speed);
+            slider.value = `${this.clampIndex(index)}`;
+            this.updateActiveMark(index);
         }
     }
 
@@ -417,29 +468,10 @@ class VideoSpeedController {
         return 1.0; // Default fallback
     }
 
-    highlightNearestMark(currentSpeed) {
-        const marks = document.querySelectorAll('.mark');
-        const snapMarks = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 1.75, 2, 2.5, 3, 4, 5];
-        
-        // Xóa highlight cũ
-        marks.forEach(mark => mark.classList.remove('active'));
-        
-        // Tìm mark gần nhất
-        let nearestMark = null;
-        let minDistance = Infinity;
-        
-        snapMarks.forEach((markValue, index) => {
-            const distance = Math.abs(currentSpeed - markValue);
-            if (distance < minDistance) {
-                minDistance = distance;
-                nearestMark = marks[index];
-            }
-        });
-        
-        // Highlight mark gần nhất nếu đủ gần
-        if (nearestMark && minDistance <= 0.1) {
-            nearestMark.classList.add('active');
-        }
+    updateActiveMark(index) {
+        const marks = Array.from(document.querySelectorAll('#sliderMarks .mark'));
+        const activeIndex = this.clampIndex(index);
+        marks.forEach((mark, i) => mark.classList.toggle('active', i === activeIndex));
     }
 
     showStatus(message, type = 'info') {
@@ -469,6 +501,15 @@ class VideoSpeedController {
 document.addEventListener('DOMContentLoaded', () => {
     const controller = new VideoSpeedController();
     controller.init();
+    const openPlayerBtn = document.getElementById('openRandomPlayerBtn');
+    
+    if (openPlayerBtn) {
+        openPlayerBtn.addEventListener('click', () => {
+            // Mở file random_player.html trong một tab riêng biệt của trình duyệt
+            const playerUrl = chrome.runtime.getURL("random_player.html");
+            chrome.tabs.create({ url: playerUrl });
+        });
+    }
 });
 
 // Keyboard shortcuts - Updated to new key combinations
@@ -479,20 +520,18 @@ document.addEventListener('keydown', (e) => {
     if (isCtrlOrCmd && e.shiftKey) {
         if (e.key === 'ArrowRight') {
             e.preventDefault();
-            // Increase speed by 0.25
             const currentSlider = document.getElementById('speedSlider');
             if (currentSlider) {
-                const newSpeed = Math.min(16, parseFloat(currentSlider.value) + 0.25);
-                currentSlider.value = newSpeed;
+                const newIndex = Math.min(16, (parseInt(currentSlider.value, 10) || 0) + 1);
+                currentSlider.value = `${newIndex}`;
                 currentSlider.dispatchEvent(new Event('input'));
             }
         } else if (e.key === 'ArrowLeft') {
             e.preventDefault();
-            // Decrease speed by 0.25
             const currentSlider = document.getElementById('speedSlider');
             if (currentSlider) {
-                const newSpeed = Math.max(0.1, parseFloat(currentSlider.value) - 0.25);
-                currentSlider.value = newSpeed;
+                const newIndex = Math.max(0, (parseInt(currentSlider.value, 10) || 0) - 1);
+                currentSlider.value = `${newIndex}`;
                 currentSlider.dispatchEvent(new Event('input'));
             }
         }
