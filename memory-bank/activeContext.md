@@ -1,21 +1,19 @@
 # Active Context - Video Speed Controller Extension
 
 ## Trọng tâm công việc hiện tại
-- ✅ Hoàn thành layout 3 tầng cho speed marks (0.1x-1x, 1x-3x, 3x-5x)
-- ✅ Tăng độ cao container từ 35px lên 50px để chứa layout mới
-- ✅ Thêm marks 4x và 2.5x vào HTML và CSS
-- ✅ Cập nhật CSS để phân bố marks đều trên 3 tầng
+- ✅ Nâng giới hạn tốc độ trên giao diện popup lên 16x
+- ✅ Cập nhật speed marks để hỗ trợ các mốc tới 16x và tự tính vị trí theo min/max của slider
+- ✅ Bố trí lại thanh trượt theo demo: marks zigzag 2 hàng (top/bottom) + overlay trên slider + cuộn chuột để chỉnh tốc độ
 - ✅ **HOÀN THÀNH: Thêm tính năng chọn loại phím tắt**
 - ✅ **HOÀN THÀNH: Khắc phục lỗi Chrome API và storage**
 
 ## Thay đổi gần đây
 ### Layout 3 tầng (đã hoàn thành)
-- Tăng độ cao `.slider-marks` từ 35px lên 50px
-- Thêm marks 4x (top: 10px) và 2.5x (top: 30px) vào HTML
-- Cập nhật CSS positioning cho tất cả marks để phân bố trên 3 tầng:
-  - Tầng 1 (top: 10px): 0.1x, 0.25x, 0.5x, 4x, 5x
-  - Tầng 2 (top: 30px): 0.75x, 1.25x, 1.5x, 2.5x, 3x  
-  - Tầng 3 (top: 50px): 1x, 1.75x, 2x
+- Tăng độ cao `.slider-marks` để đủ chỗ hiển thị nhiều mốc hơn
+- Cập nhật HTML để thêm các mốc tốc độ cao (6x, 8x, 10x, 12x, 16x)
+- Cập nhật CSS để dùng zigzag 2 hàng (`top/bottom`) và overlay marks lên khu vực slider
+- Cập nhật popup.js để tự tính `left (%)` cho marks theo min/max slider
+- Thêm thao tác cuộn chuột trên vùng slider để tăng/giảm theo các mốc
 
 ### Tính năng phím tắt mới (đã hoàn thành)
 - Thêm giao diện chọn phím tắt trong popup.html với dropdown và phần tùy chỉnh
@@ -93,7 +91,7 @@
 - ✅ Thêm logic snap-to-marks với threshold 0.1
 - ✅ Visual feedback: highlight vạch gần nhất và click-to-jump
 - ✅ Hover effects và active states cho các vạch
-- ✅ Cập nhật phạm vi tốc độ từ 0.1x-16x xuống 0.1x-5x
+- ✅ Nâng giới hạn tốc độ trên giao diện từ 0.1x-5x lên 0.1x-16x
 - ✅ Thêm 10 vạch đánh dấu mới với vị trí chính xác
 - ✅ Thêm nút tăng/giảm tốc độ 0.25x hai bên hiển thị
 - ✅ Cập nhật logic JavaScript cho phạm vi và nút mới

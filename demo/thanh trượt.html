@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Speed Controller - Pro UX</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #1a1a2e;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .extension-mockup {
+            width: 340px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            color: white;
+        }
+
+        .main-control {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .speed-display {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        #currentSpeed {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ffc8;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 8px 20px;
+            border-radius: 20px;
+        }
+
+        /* Slider Area */
+        .slider-container {
+            position: relative;
+            margin: 30px 0 20px 0;
+            padding: 15px 0; /* Area for scrolling */
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+            position: relative;
+            z-index: 2;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: 0.1s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #00ffc8;
+        }
+
+        /* Zigzag Marks */
+        .slider-marks {
+            position: absolute;
+            width: 100%;
+            top: 15px; /* Same as slider padding top */
+            left: 0;
+            pointer-events: none; /* Let clicks pass to slider */
+        }
+
+        .mark {
+            position: absolute;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: rgba(255,255,255,0.6);
+            transition: 0.2s;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .mark.top { top: -16px; }
+        .mark.bottom { top: 12px; }
+
+        .mark:hover, .mark.active {
+            color: #00ffc8;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        /* Preset Chips */
+        .preset-chips {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .chip:hover {
+            background: #00ffc8;
+            color: #1a1a2e;
+            border-color: #00ffc8;
+        }
+
+        .scroll-hint {
+            text-align: center;
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="extension-mockup">
+        <h2 style="text-align:center; font-size: 16px; margin-top:0;">Video Speed Pro UX</h2>
+        <div class="main-control">
+            <div class="speed-display">
+                <span id="currentSpeed">1.00x</span>
+            </div>
+            
+            <div class="scroll-hint">🖱️ Cuộn chuột tại đây để chỉnh tốc độ</div>
+            
+            <!-- Slider chạy từ index 0 đến 16 -->
+            <div class="slider-container" id="sliderContainer">
+                <input type="range" id="speedSlider" min="0" max="16" step="1" value="4">
+                <div class="slider-marks" id="sliderMarks"></div>
+            </div>
+
+            <!-- Chips -->
+            <div class="preset-chips">
+                <button class="chip" data-speed="1">1.0x</button>
+                <button class="chip" data-speed="1.5">1.5x</button>
+                <button class="chip" data-speed="2">2.0x</button>
+                <button class="chip" data-speed="3">3.0x</button>
+                <button class="chip" data-speed="16">MAX</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SPEEDS = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 1.75, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 16];
+        
+        const slider = document.getElementById('speedSlider');
+        const display = document.getElementById('currentSpeed');
+        const marksContainer = document.getElementById('sliderMarks');
+        const sliderContainer = document.getElementById('sliderContainer');
+
+        // 1. Render Zigzag Marks
+        function renderMarks() {
+            marksContainer.innerHTML = '';
+            SPEEDS.forEach((speed, index) => {
+                const percent = (index / (SPEEDS.length - 1)) * 100;
+                const mark = document.createElement('div');
+                mark.className = `mark ${index % 2 === 0 ? 'bottom' : 'top'}`;
+                if (speed === 1) mark.classList.add('active'); // default
+                mark.style.left = `${percent}%`;
+                mark.innerText = speed;
+                
+                // Click mark to jump
+                mark.onclick = () => updateUI(index);
+                marksContainer.appendChild(mark);
+            });
+        }
+
+        function updateUI(index) {
+            slider.value = index;
+            const speed = SPEEDS[index];
+            display.innerText = speed.toFixed(2) + 'x';
+            
+            // Highlight active mark
+            document.querySelectorAll('.mark').forEach((m, i) => {
+                m.classList.toggle('active', i === parseInt(index));
+            });
+        }
+
+        // 2. Slider Input Event
+        slider.addEventListener('input', (e) => {
+            updateUI(e.target.value);
+        });
+
+        // 3. Scroll Wheel Event
+        sliderContainer.addEventListener('wheel', (e) => {
+            e.preventDefault(); // Prevent page scroll
+            let currentIndex = parseInt(slider.value);
+            
+            if (e.deltaY < 0 && currentIndex < 16) {
+                currentIndex++; // Scroll Up -> Tăng
+            } else if (e.deltaY > 0 && currentIndex > 0) {
+                currentIndex--; // Scroll Down -> Giảm
+            }
+            
+            updateUI(currentIndex);
+        });
+
+        // 4. Preset Chips
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                const targetSpeed = parseFloat(e.target.dataset.speed);
+                const index = SPEEDS.indexOf(targetSpeed);
+                if(index !== -1) updateUI(index);
+            });
+        });
+
+        renderMarks();
+    </script>
+</body>
+</html>
